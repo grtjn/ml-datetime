@@ -440,6 +440,24 @@ declare function datetime:enrich-dateTime(
     else $elem
 };
 
+declare function datetime:get-age($birthdate as xs:date) as xs:integer {
+  let $now := current-date()
+  let $current-year := year-from-date($now)
+  let $birth-year := year-from-date($birthdate)
+  let $current-year-birthdate := $birthdate + xs:yearMonthDuration( "P" || ($current-year - $birth-year) || "Y" )
+  return
+    $current-year - $birth-year - (if ($now ge $current-year-birthdate) then 0 else 1)
+};
+
+declare function datetime:from-epoch($epoch as xs:long) as xs:dateTime {
+  xs:dateTime("1970-01-01T00:00:00-00:00") + xs:dayTimeDuration("PT" || ($epoch div 1000) || "S")
+};
+
+(: Based on: http://stackoverflow.com/a/7484211/918496 :)
+declare function datetime:to-epoch($dateTime as xs:dateTime) as xs:long {
+  ($dateTime - xs:dateTime("1970-01-01T00:00:00-00:00")) div xs:dayTimeDuration("PT0.001S")
+};
+
 declare private variable $timezones := map:new((
   map:entry("ACDT", "+10:30"), map:entry("ACST", "+09:30"), map:entry("ADT", "-03:00"), map:entry("AEDT", "+11:00"), map:entry("AEST", "+10:00"), map:entry("AHDT", "-09:00"), map:entry("AHST", "-10:00"), map:entry("AST", "-04:00"), map:entry("AT", "-02:00"), map:entry("AWDT", "+09:00"), map:entry("AWST", "+08:00"), map:entry("BAT", "+03:00"), map:entry("BDST", "+02:00"), map:entry("BET", "-11:00"), map:entry("BST", "-03:00"), map:entry("BT", "+03:00"), map:entry("BZT2", "-03:00"), map:entry("CADT", "+10:30"), map:entry("CAST", "+09:30"), map:entry("CAT", "-10:00"), map:entry("CCT", "+08:00"), map:entry("CDT", "-05:00"), map:entry("CED", "+02:00"), map:entry("CET", "+01:00"), map:entry("CEST", "+02:00"), map:entry("CST", "-06:00"), map:entry("EAST", "+10:00"), map:entry("EDT", "-04:00"), map:entry("EED", "+03:00"), map:entry("EET", "+02:00"), map:entry("EEST", "+03:00"), map:entry("EST", "-05:00"), map:entry("FST", "+02:00"), map:entry("FWT", "+01:00"), map:entry("GMT", "-00:00"), map:entry("GST", "+10:00"), map:entry("HDT", "-09:00"), map:entry("HST", "-10:00"), map:entry("IDLE", "+12:00"), map:entry("IDLW", "-12:00"), map:entry("IST", "+05:30"), map:entry("IT", "+03:30"), map:entry("JST", "+09:00"), map:entry("JT", "+07:00"), map:entry("MDT", "-06:00"), map:entry("MED", "+02:00"), map:entry("MET", "+01:00"), map:entry("MEST", "+02:00"), map:entry("MEWT", "+01:00"), map:entry("MST", "-07:00"), map:entry("MT", "+08:00"), map:entry("NDT", "-02:30"), map:entry("NFT", "-03:30"), map:entry("NT", "-11:00"), map:entry("NST", "+06:30"), map:entry("NZ", "+11:00"), map:entry("NZST", "+12:00"), map:entry("NZDT", "+13:00"), map:entry("NZT", "+12:00"), map:entry("PDT", "-07:00"), map:entry("PST", "-08:00"), map:entry("ROK", "+09:00"), map:entry("SAD", "+10:00"), map:entry("SAST", "+09:00"), map:entry("SAT", "+09:00"), map:entry("SDT", "+10:00"), map:entry("SST", "+02:00"), map:entry("SWT", "+01:00"), map:entry("USZ3", "+04:00"), map:entry("USZ4", "+05:00"), map:entry("USZ5", "+06:00"), map:entry("USZ6", "+07:00"), map:entry("UT", "-00:00"), map:entry("UTC", "-00:00"), map:entry("UZ10", "+11:00"), map:entry("WAT", "-01:00"), map:entry("WET", "-00:00"), map:entry("WST", "+08:00"), map:entry("YDT", "-08:00"), map:entry("YST", "-09:00"), map:entry("ZP4", "+04:00"), map:entry("ZP5", "+05:00"), map:entry("ZP6", "+06:00")
 ));

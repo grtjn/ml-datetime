@@ -238,6 +238,108 @@ declare %test:case function test:parse-dateTime-international()
   )
 };
 
+declare %test:case function test:enrich-date()
+{
+  for $elem in (
+    element Date { "Fri, 27 Apr 2001 (UTC)" },
+    element Date { "Fri, 27 Apr 2001 10:11:12 PM (UTC)" }
+  )
+  let $date := datetime:enrich-date($elem)
+  return (
+    assert:not-empty($date, $elem),
+    assert:not-equal($date, $elem, $elem),
+    assert:not-empty($date/@datetime:date, $date),
+    assert:not-empty($date/@datetime:year-quarter, $date),
+    assert:not-empty($date/@datetime:year-month, $date),
+    assert:not-empty($date/@datetime:year, $date),
+    assert:not-empty($date/@datetime:quarter, $date),
+    assert:not-empty($date/@datetime:month, $date),
+    assert:not-empty($date/@datetime:week, $date),
+    assert:not-empty($date/@datetime:day, $date),
+    assert:not-empty($date/@datetime:yearday, $date),
+    assert:not-empty($date/@datetime:weekday, $date),
+    assert:not-empty($date/@datetime:timezone, $date),
+    assert:empty($date/@datetime:dateTime, $date),
+    assert:empty($date/@datetime:time, $date)
+  )
+};
+
+declare %test:case function test:enrich-time()
+{
+  for $elem in (
+    element Date { "10:11:12+02:00" }
+  )
+  let $date := datetime:enrich-time($elem)
+  return (
+    assert:not-empty($date, $elem),
+    assert:not-equal($date, $elem, $elem),
+    assert:not-empty($date/@datetime:time, $date),
+    assert:not-empty($date/@datetime:hours, $date),
+    assert:not-empty($date/@datetime:minutes, $date),
+    assert:not-empty($date/@datetime:seconds, $date),
+    assert:not-empty($date/@datetime:timezone, $date),
+    assert:empty($date/@datetime:dateTime, $date),
+    assert:empty($date/@datetime:date, $date)
+  )
+};
+
+declare %test:case function test:enrich-dateTime()
+{
+  for $elem in (
+    element Date { "Fri, 27 Apr 2001 10:11:12 PM (UTC)" }
+  )
+  let $date := datetime:enrich-dateTime($elem)
+  return (
+    assert:not-empty($date, $elem),
+    assert:not-equal($date, $elem, $elem),
+    assert:not-empty($date/@datetime:dateTime, $date),
+    assert:not-empty($date/@datetime:date, $date),
+    assert:not-empty($date/@datetime:year-quarter, $date),
+    assert:not-empty($date/@datetime:year-month, $date),
+    assert:not-empty($date/@datetime:year, $date),
+    assert:not-empty($date/@datetime:quarter, $date),
+    assert:not-empty($date/@datetime:month, $date),
+    assert:not-empty($date/@datetime:week, $date),
+    assert:not-empty($date/@datetime:day, $date),
+    assert:not-empty($date/@datetime:yearday, $date),
+    assert:not-empty($date/@datetime:weekday, $date),
+    assert:not-empty($date/@datetime:time, $date),
+    assert:not-empty($date/@datetime:hours, $date),
+    assert:not-empty($date/@datetime:minutes, $date),
+    assert:not-empty($date/@datetime:seconds, $date),
+    assert:not-empty($date/@datetime:timezone, $date)
+  )
+};
+
+declare %test:case function test:get-age()
+{
+  for $date in (
+    <date equals="10">{ current-date() - xs:yearMonthDuration("P10Y") }</date>,
+    <date equals="9">{ current-date() - xs:yearMonthDuration("P10Y") + xs:dayTimeDuration("P1D") }</date>
+  )
+  return assert:equal( datetime:get-age(xs:date($date)), xs:integer($date/@equals), $date )
+};
+
+declare %test:case function test:to-epoch()
+{
+  for $date in (
+    <date equals="0">{ xs:dateTime("1970-01-01T00:00:00Z") }</date>,
+    (: http://www.epochconverter.com/ :)
+    <date equals="1461591463000">{ xs:dateTime("2016-04-25T13:37:43Z") }</date>
+  )
+  return assert:equal( datetime:to-epoch(xs:dateTime($date)), xs:long($date/@equals), $date )
+};
+
+declare %test:case function test:from-epoch()
+{
+  for $date in (
+    <date equals="0">{ xs:dateTime("1970-01-01T00:00:00Z") }</date>,
+    (: http://www.epochconverter.com/ :)
+    <date equals="1461591463000">{ xs:dateTime("2016-04-25T13:37:43Z") }</date>
+  )
+  return assert:equal( datetime:from-epoch(xs:long($date/@equals)), xs:dateTime($date), $date )
+};
+
 (: test helper functions :)
 
 declare private variable $root := resolve-uri("..", xdmp:modules-root() || xdmp:get-request-path());
