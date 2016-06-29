@@ -71,7 +71,12 @@ declare %test:case function test:parse-date-simple()
     element ModDate { "2001/05/29+01'00'" },
     element ModDate { "2015/02/05 (CET)" },
     element ModDate { "2015/02/05 (CEST)" },
-    element Original_Date_Time { "2002:03:23" }
+    element Original_Date_Time { "2002:03:23" },
+    element CreationDate { "18/05/2001" },
+    element CreationDate { "05/18/2001" },
+    element CreationDate { "18.05.2001" },
+    element CreationDate { "5-8-2001" },
+    element CreationDate { "8/5/2001" }
   )
   let $date := datetime:parse-date($str)
   return (
@@ -185,7 +190,12 @@ declare %test:case function test:parse-dateTime-simple()
     element ModDate { "2001/05/29 10:56:12+01'00'" },
     element ModDate { "2015/02/05 08:07:14 (CET)" },
     element ModDate { "2015/02/05 08:07:14 (CEST)" },
-    element Original_Date_Time { "2002:03:23 15:18:44" }
+    element Original_Date_Time { "2002:03:23 15:18:44" },
+    element CreationDate { "03/21/2000 15:40:04" },
+    element CreationDate { "21/03/2000 08:26:43" },
+    element CreationDate { "21.03.2000 14:12:15" },
+    element CreationDate { "1/3/2000 14:12:15" },
+    element CreationDate { "3-1-2000 14:12:15" }
   )
   let $date := datetime:parse-dateTime($str)
   return (

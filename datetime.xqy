@@ -46,12 +46,33 @@ declare private function datetime:parse-date(
 
     (: simple patterns :)
 
+    (: clean up US MDY date order :)
+    (:
+      03/18/2015
+      3/18/2015
+      3/8/2015
+    :)
+    let $str := replace($str, "^(0?\d|1[0-2])/(0?\d|[1-3]\d)/(\d{4})", "$3-$1-$2")
     (: clean up date separator :)
     (:
       2015/08/03
       2000:09:13
+      2000.09.13
     :)
-    let $str := replace($str, "^(\d{2,4})[/:](\d{2,4})[/:](\d{2,4})", "$1-$2-$3")
+    let $str := replace($str, "^(\d{1,4})[/:.](\d{1,4})[/:.](\d{1,4})", "$1-$2-$3")
+    (: clean up date order :)
+    (:
+      18-03-2015 (DMY most common!)
+    :)
+    let $str := replace($str, "^(\d{1,2})-(\d{1,2})-(\d{4})", "$3-$2-$1")
+    (: clean up missing zeros :)
+    (:
+      2015-3-8
+      2015-3-18
+      2015-11-8
+    :)
+    let $str := replace($str, "^(\d{4})-(\d)-(\d{1,2})", "$1-0$2-$3")
+    let $str := replace($str, "^(\d{4})-(\d{2})-(\d$|\d[^\d])", "$1-$2-0$3")
     (: clean up timezone separator :)
     (:
       +02'00'
@@ -222,12 +243,38 @@ declare private function datetime:parse-dateTime(
 
     (: simple patterns :)
 
+    (: clean up US MDY date order :)
+    (:
+      03/18/2015
+      3/18/2015
+      3/8/2015
+    :)
+    let $str := replace($str, "^(0?\d|1[0-2])/(0?\d|[1-3]\d)/(\d{4})", "$3-$1-$2")
     (: clean up date separator :)
     (:
       2015/08/03
       2000:09:13
+      2000.09.13
     :)
-    let $str := replace($str, "^(\d{2,4})[/:](\d{2,4})[/:](\d{2,4})", "$1-$2-$3")
+    let $str := replace($str, "^(\d{1,4})[/:.](\d{1,4})[/:.](\d{1,4})", "$1-$2-$3")
+    (: clean up date order :)
+    (:
+      18-03-2015 (DMY most common!)
+    :)
+    let $str := replace($str, "^(\d{1,2})-(\d{1,2})-(\d{4})", "$3-$2-$1")
+    (: clean up missing zeros :)
+    (:
+      2015-3-8
+      2015-3-18
+      2015-11-8
+    :)
+    let $str := replace($str, "^(\d{4})-(\d)-(\d{1,2})", "$1-0$2-$3")
+    let $str := replace($str, "^(\d{4})-(\d{2})-(\d$|\d[^\d])", "$1-$2-0$3")
+    (: clean up timezone separator :)
+    (:
+      +02'00'
+      -05'00'
+    :)
     (: clean up date-time separator :)
     (:
       2015-08-03 14:25:36
