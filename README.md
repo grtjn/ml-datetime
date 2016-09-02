@@ -1,6 +1,10 @@
 # ml-datetime
 MarkLogic library with various date/time related functions
 
+## API Documentation
+
+See [API.md](API.md).
+
 ## Testing
 
 - git clone git://github.com/robwhitby/xray.git
