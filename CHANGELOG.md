@@ -1,6 +1,15 @@
 # Change Log
 
-## [1.0.2](https://github.com/grtjn/ml-datetime/tree/1.0.2) (2016-09-02)
+## [1.0.3](https://github.com/grtjn/ml-datetime/tree/1.0.3) (2017-06-30)
+[Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.2...1.0.3)
+
+**Implemented enhancements:**
+
+- Add support for additional format "Wed, 01 Mar 2017 00:00:00 GMT" [\#8](https://github.com/grtjn/ml-datetime/issues/8)
+- More date and time patterns [\#7](https://github.com/grtjn/ml-datetime/issues/7)
+- Add function for excel date conversion [\#5](https://github.com/grtjn/ml-datetime/issues/5)
+
+## [1.0.2](https://github.com/grtjn/ml-datetime/tree/1.0.2) (2017-02-16)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.1...1.0.2)
 
 **Implemented enhancements:**
