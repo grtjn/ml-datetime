@@ -3,22 +3,7 @@
 
 ## Table of Contents
 
-* Variables: [$timezones](#var_timezones), [$timezones-pattern](#var_timezones-pattern)
-* Functions: [datetime:parse-date\#1](#func_datetime_parse-date_1), [datetime:parse-date\#2](#func_datetime_parse-date_2), [datetime:apply-simple-date-patterns\#1](#func_datetime_apply-simple-date-patterns_1), [datetime:apply-simple-timezone-patterns\#1](#func_datetime_apply-simple-timezone-patterns_1), [datetime:apply-simple-time-patterns\#1](#func_datetime_apply-simple-time-patterns_1), [datetime:parse-date\#3](#func_datetime_parse-date_3), [datetime:parse-dateTime\#1](#func_datetime_parse-dateTime_1), [datetime:parse-dateTime\#2](#func_datetime_parse-dateTime_2), [datetime:parse-dateTime\#3](#func_datetime_parse-dateTime_3), [datetime:parse-time\#1](#func_datetime_parse-time_1), [datetime:date-attrs\#1](#func_datetime_date-attrs_1), [datetime:time-attrs\#1](#func_datetime_time-attrs_1), [datetime:get-html-date\#1](#func_datetime_get-html-date_1), [datetime:enrich-date\#1](#func_datetime_enrich-date_1), [datetime:enrich-time\#1](#func_datetime_enrich-time_1), [datetime:enrich-dateTime\#1](#func_datetime_enrich-dateTime_1), [datetime:get-age\#1](#func_datetime_get-age_1), [datetime:from-epoch\#1](#func_datetime_from-epoch_1), [datetime:to-epoch\#1](#func_datetime_to-epoch_1), [datetime:from-excel\#1](#func_datetime_from-excel_1)
-
-
-## Variables
-
-### <a name="var_timezones"/> $timezones
-```xquery
-$timezones as 
-```
-
-### <a name="var_timezones-pattern"/> $timezones-pattern
-```xquery
-$timezones-pattern as 
-```
-
+* Functions: [datetime:parse-date\#1](#func_datetime_parse-date_1), [datetime:parse-date\#2](#func_datetime_parse-date_2), [datetime:parse-date\#3](#func_datetime_parse-date_3), [datetime:parse-dateTime\#1](#func_datetime_parse-dateTime_1), [datetime:parse-dateTime\#2](#func_datetime_parse-dateTime_2), [datetime:parse-dateTime\#3](#func_datetime_parse-dateTime_3), [datetime:parse-time\#1](#func_datetime_parse-time_1), [datetime:date-attrs\#1](#func_datetime_date-attrs_1), [datetime:time-attrs\#1](#func_datetime_time-attrs_1), [datetime:get-html-date\#1](#func_datetime_get-html-date_1), [datetime:enrich-date\#1](#func_datetime_enrich-date_1), [datetime:enrich-time\#1](#func_datetime_enrich-time_1), [datetime:enrich-dateTime\#1](#func_datetime_enrich-dateTime_1), [datetime:get-age\#1](#func_datetime_get-age_1), [datetime:from-epoch\#1](#func_datetime_from-epoch_1), [datetime:to-epoch\#1](#func_datetime_to-epoch_1), [datetime:from-excel\#1](#func_datetime_from-excel_1)
 
 
 ## Functions
@@ -55,51 +40,6 @@ datetime:parse-date(
 
 #### Returns
 *  xs:date?
-
-### <a name="func_datetime_apply-simple-date-patterns_1"/> datetime:apply-simple-date-patterns\#1
-```xquery
-datetime:apply-simple-date-patterns(
-  $str as xs:string
-) as  xs:string
-```
-
-#### Params
-
-* $str as  xs:string
-
-
-#### Returns
-*  xs:string
-
-### <a name="func_datetime_apply-simple-timezone-patterns_1"/> datetime:apply-simple-timezone-patterns\#1
-```xquery
-datetime:apply-simple-timezone-patterns(
-  $str as xs:string
-) as  xs:string
-```
-
-#### Params
-
-* $str as  xs:string
-
-
-#### Returns
-*  xs:string
-
-### <a name="func_datetime_apply-simple-time-patterns_1"/> datetime:apply-simple-time-patterns\#1
-```xquery
-datetime:apply-simple-time-patterns(
-  $str as xs:string
-) as  xs:string
-```
-
-#### Params
-
-* $str as  xs:string
-
-
-#### Returns
-*  xs:string
 
 ### <a name="func_datetime_parse-date_3"/> datetime:parse-date\#3
 ```xquery
