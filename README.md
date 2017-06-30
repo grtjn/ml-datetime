@@ -16,3 +16,4 @@ See [API.md](API.md).
 - install xquerydoc (see https://github.com/xquery/xquerydoc)
 - run: xquerydoc -f markdown
 - cp xqdoc/xqdoc_ml-datetime_datetime.xqy.md API.md
+- manually remove private vars (all) and functions (apply-*)
