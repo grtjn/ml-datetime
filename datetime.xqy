@@ -25,6 +25,111 @@ declare function datetime:parse-date(
   datetime:parse-date($str, $lang, true())
 };
 
+declare private function datetime:apply-simple-date-patterns(
+  $str as xs:string
+)
+  as xs:string
+{
+  (: simple patterns :)
+
+  (: clean up US MDY date order, recognized by / :)
+  (:
+    03/18/2015
+    3/18/2015
+    3/8/2015
+  :)
+  let $str := replace($str, "^(0?\d|1[0-2])/(0?\d|[1-3]\d)/(\d{4})", "$3-$1-$2")
+
+  (: clean up date separator :)
+  (:
+    2015/08/03
+    2000:09:13
+    2000.09.13
+  :)
+  let $str := replace($str, "^(\d{1,4})[/:.](\d{1,4})[/:.](\d{1,4})", "$1-$2-$3")
+
+  (: clean up date order :)
+  (:
+    18-03-2015 (DMY most common!)
+  :)
+  let $str := replace($str, "^(\d{1,2})-(\d{1,2})-(\d{4})", "$3-$2-$1")
+
+  (: append (guessed) century to year :)
+  (:
+    18-03-15 (DMY most common!)
+  :)
+  (: Note: this pattern was used most *before* 2000, taking 50/50 split around that year :)
+  let $str := replace($str, "^(\d{2})-(\d{2})-([5-9]\d)", "19$3-$2-$1")
+  let $str := replace($str, "^(\d{2})-(\d{2})-([0-4]\d)", "20$3-$2-$1")
+
+  (: clean up missing zeros :)
+  (:
+    2015-3-8
+    2015-3-18
+    2015-11-8
+  :)
+  let $str := replace($str, "^(\d{4})-(\d)-(\d{1,2})", "$1-0$2-$3")
+  let $str := replace($str, "^(\d{4})-(\d{2})-(\d$|\d[^\d])", "$1-$2-0$3")
+
+  return $str
+};
+
+declare private function datetime:apply-simple-timezone-patterns(
+  $str as xs:string
+) as xs:string
+{
+  (: normalize timezone separator :)
+  (:
+    +02'00'
+    -05'00'
+  :)
+  let $str := replace($str, "([+\-]\d{2})'(\d{2})'$", "$1:$2")
+
+  (: add missing timezone separator :)
+  (:
+    +0200
+    -0500
+  :)
+  let $str :=
+    (: skip over anything that might look like a date :)
+    if (matches($str, "^[^-]+-[^-]+-[^-]+$")) then
+      $str
+    else
+      replace($str, "([+\-]\d{2})(\d{2})$", "$1:$2")
+
+  (: translate timezone indication (if any) :)
+  (:
+    (UTC)
+    (GMT)
+    (BST)
+    CET
+    CEST
+  :)
+  let $str :=
+    if (matches($str, "\s[(]?" || $timezones-pattern || "[)]?$")) then
+      let $match := replace($str, "^.*(\s[(]?" || $timezones-pattern || "[)]?)$", "$1")
+      let $abbrev := upper-case(replace($str, "^.*(\s[(]?" || $timezones-pattern || "[)]?)$", "$2"))
+      return replace($str, replace($match, "([()])", "\\$1"), map:get($timezones, $abbrev))
+    else
+      $str
+
+  (: strip whitespace in front of timezone :)
+  let $str := replace($str, "\s+([+\-]\d{2}:\d{2})$", "$1")
+
+  return $str
+};
+
+declare private function datetime:apply-simple-time-patterns(
+  $str as xs:string
+)
+  as xs:string
+{
+  let $str := replace($str, "(^|:|T)(\d)(:|$)", "$10$2$3")
+  let $str := replace($str, "(^|:|T)(\d)(:|$)", "$10$2$3") (: apply twive because of overlapping patterns :)
+  let $str := replace($str, "(^|T)(\d{2}:\d{2})($|[+-])", "$1$2:00$3")
+  return $str
+};
+
 (:
 Converted_Date=23-Sep-1999
 :)
@@ -44,56 +149,10 @@ declare private function datetime:parse-date(
     xs:date($str)
   else
 
-    (: simple patterns :)
+    let $str := datetime:apply-simple-date-patterns($str)
 
-    (: clean up US MDY date order :)
-    (:
-      03/18/2015
-      3/18/2015
-      3/8/2015
-    :)
-    let $str := replace($str, "^(0?\d|1[0-2])/(0?\d|[1-3]\d)/(\d{4})", "$3-$1-$2")
-    (: clean up date separator :)
-    (:
-      2015/08/03
-      2000:09:13
-      2000.09.13
-    :)
-    let $str := replace($str, "^(\d{1,4})[/:.](\d{1,4})[/:.](\d{1,4})", "$1-$2-$3")
-    (: clean up date order :)
-    (:
-      18-03-2015 (DMY most common!)
-    :)
-    let $str := replace($str, "^(\d{1,2})-(\d{1,2})-(\d{4})", "$3-$2-$1")
-    (: clean up missing zeros :)
-    (:
-      2015-3-8
-      2015-3-18
-      2015-11-8
-    :)
-    let $str := replace($str, "^(\d{4})-(\d)-(\d{1,2})", "$1-0$2-$3")
-    let $str := replace($str, "^(\d{4})-(\d{2})-(\d$|\d[^\d])", "$1-$2-0$3")
-    (: clean up timezone separator :)
-    (:
-      +02'00'
-      -05'00'
-    :)
-    let $str := replace($str, "([+\-]\d{2})'(\d{2})'$", "$1:$2")
-    (: translate timezone indication (if any) :)
-    (:
-      (UTC)
-      (GMT)
-      (BST)
-      (CET)
-      (CEST)
-    :)
-    let $str :=
-      if (matches($str, "\s\([a-zA-Z]{1,4}\)$")) then
-        let $match := replace($str, "^.*(\s\(([a-zA-Z]{1,4})\))$", "$1")
-        let $abbrev := upper-case(replace($str, "^.*(\s\(([a-zA-Z]{1,4})\))$", "$2"))
-        return replace($str, replace($match, "([()])", "\\$1"), map:get($timezones, $abbrev))
-      else
-        $str
+    let $str := datetime:apply-simple-timezone-patterns($str)
+
     return
 
     if ($str castable as xs:date) then
@@ -102,7 +161,7 @@ declare private function datetime:parse-date(
 
       (: complex patterns :)
 
-      let $str := replace(replace($str, "^D:", ""), "Z$", "-00:00")
+      let $str := replace(replace(translate($str, ",", ""), "^D:", "", "i"), "\s*Z$", "-00:00", "i")
       let $date := try {
         (: 23-Sep-1999 :)
         if (matches($str, "^\d{1,2}-\w{3,}-\d{4}$")) then
@@ -110,21 +169,18 @@ declare private function datetime:parse-date(
         (: Fri Jul 05 2002 :)
         else if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{4}$")) then
           xs:date(xdmp:parse-dateTime("[Fn] [Mn] [D1] [Y0001]", lower-case($str), $lang))
-        (: 6 Feb 2001 -0000 :)
-        else if (matches($str, "^\d{1,2} \w{3,} \d{4} [+\-]\d{4}$")) then
-          xs:date(xdmp:parse-dateTime("[D1] [Mn] [Y0001] [Z0001]", lower-case($str), $lang))
-        (: Fri, 6 Oct 2000 -0700 :)
-        else if (matches($str, "^\w{2,}, \d{1,2} \w{3,} \d{4} [+\-]\d{4}$")) then
-          xs:date(xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001] [Z0001]", lower-case($str), $lang))
-        (: Fri, 27 Apr 2001 :)
-        else if (matches($str, "^\w{2,}, [0-9]{1,2} \w{3,} [0-9]{4,4}$")) then
-          xs:date(xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001]", lower-case($str), $lang))
-        (: Fri, 27 Apr 2001 +02:00 :) (: Note: TZ abbrevs are replaced above :)
-        else if (matches($str, "^\w{2,}, [0-9]{1,2} \w{3,} [0-9]{4,4}[+\-]\d{2}:\d{2}$")) then
-          xs:date(xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001][Z]", lower-case($str), $lang))
-        (: Friday, January 28, 2000 :)
-        else if (matches($str, "^\w{2,}, \w{3,} [0-9]{1,2}, [0-9]{4,4}$")) then
-          xs:date(xdmp:parse-dateTime("[Fn], [Mn] [D1], [Y0001]", lower-case($str), $lang))
+        (: 6 Feb 2001-00:00 :)
+        else if (matches($str, "^\d{1,2} \w{3,} \d{4}[+\-]\d{2}:\d{2}$")) then
+          xs:date(xdmp:parse-dateTime("[D1] [Mn] [Y0001][Z]", lower-case($str), $lang))
+        (: Fri 27 Apr 2001 :)
+        else if (matches($str, "^\w{2,} \d{1,2} \w{3,} \d{4}$")) then
+          xs:date(xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001]", lower-case($str), $lang))
+        (: Fri 6 Oct 2000-07:00 :)
+        else if (matches($str, "^\w{2,} \d{1,2} \w{3,} \d{4}[+\-]\d{2}:\d{2}$")) then
+          xs:date(xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001][Z]", lower-case($str), $lang))
+        (: Friday January 28 2000 :)
+        else if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{4}$")) then
+          xs:date(xdmp:parse-dateTime("[Fn] [Mn] [D1] [Y0001]", lower-case($str), $lang))
         else
           ()
       } catch ($e) {
@@ -241,91 +297,45 @@ declare private function datetime:parse-dateTime(
     xs:dateTime($str)
   else
 
-    (: simple patterns :)
+    let $str := datetime:apply-simple-date-patterns($str)
 
-    (: clean up US MDY date order :)
-    (:
-      03/18/2015
-      3/18/2015
-      3/8/2015
-    :)
-    let $str := replace($str, "^(0?\d|1[0-2])/(0?\d|[1-3]\d)/(\d{4})", "$3-$1-$2")
-    (: clean up date separator :)
-    (:
-      2015/08/03
-      2000:09:13
-      2000.09.13
-    :)
-    let $str := replace($str, "^(\d{1,4})[/:.](\d{1,4})[/:.](\d{1,4})", "$1-$2-$3")
-    (: clean up date order :)
-    (:
-      18-03-2015 (DMY most common!)
-    :)
-    let $str := replace($str, "^(\d{1,2})-(\d{1,2})-(\d{4})", "$3-$2-$1")
-    (: clean up missing zeros :)
-    (:
-      2015-3-8
-      2015-3-18
-      2015-11-8
-    :)
-    let $str := replace($str, "^(\d{4})-(\d)-(\d{1,2})", "$1-0$2-$3")
-    let $str := replace($str, "^(\d{4})-(\d{2})-(\d$|\d[^\d])", "$1-$2-0$3")
-    (: clean up timezone separator :)
-    (:
-      +02'00'
-      -05'00'
-    :)
     (: clean up date-time separator :)
     (:
       2015-08-03 14:25:36
     :)
-    let $str := replace($str, "^(\d{2,4})-(\d{2,4})-(\d{2,4}) ", "$1-$2-$3T")
-    (: clean up timezone separator :)
-    (:
-      +02'00'
-      -05'00'
-    :)
-    let $str := replace($str, "([+\-]\d{2})'(\d{2})'$", "$1:$2")
-    (: translate timezone indication (if any) :)
-    (:
-      (UTC)
-      (GMT)
-      (BST)
-      (CET)
-      (CEST)
-    :)
-    let $str :=
-      if (matches($str, "\s\([a-zA-Z]{1,4}\)$")) then
-        let $match := replace($str, "^.*(\s\(([a-zA-Z]{1,4})\))$", "$1")
-        let $abbrev := upper-case(replace($str, "^.*(\s\(([a-zA-Z]{1,4})\))$", "$2"))
-        return replace($str, replace($match, "([()])", "\\$1"), map:get($timezones, $abbrev))
-      else
-        $str
+    let $str := replace($str, "^(\d{2,4})-(\d{2,4})-(\d{2,4})\s+", "$1-$2-$3T")
+
+    let $str := datetime:apply-simple-timezone-patterns($str)
+
+    let $str := datetime:apply-simple-time-patterns($str)
 
     return
+
     if ($str castable as xs:dateTime) then
       xs:dateTime($str)
     else
-      let $str := replace(replace($str, "^D:", ""), " (AM|PM)Z$", " $1-00:00")
+      let $str := replace(replace(translate($str, ",", ""), "^D:", "", "i"), "\s*(AM|PM)?Z$", "$1-00:00", "i")
+      (: strip whitespace in front of AM/PM :)
+      let $str := replace($str, "\s*(AM|PM)", "$1", "i")
       let $date := try {
         (: Fri Jul 05 15:52:53 2002 :)
         if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{1,2}:\d{2}:\d{2} \d{4}$")) then
           xdmp:parse-dateTime("[Fn] [Mn] [D1] [H1]:[m01]:[s01] [Y0001]", lower-case($str), $lang)
-        (: 6 Feb 2001 00:22:15 -0000 :)
-        else if (matches($str, "^\d{1,2} \w{3,} \d{4} \d{1,2}:\d{2}:\d{2} [+\-]\d{4}$")) then
-          xdmp:parse-dateTime("[D1] [Mn] [Y0001] [H1]:[m01]:[s01] [Z0001]", lower-case($str), $lang)
-        (: Fri, 6 Oct 2000 09:20:25 -0700 :)
-        else if (matches($str, "^\w{2,}, \d{1,2} \w{3,} \d{4} \d{1,2}:\d{2}:\d{2} [+\-]\d{4}$")) then
-          xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001] [H1]:[m01]:[s01] [Z0001]", lower-case($str), $lang)
-        (: Fri, 27 Apr 2001 3:23:39 PM :)
-        else if (matches($str, "^\w{2,}, [0-9]{1,2} \w{3,} [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2} (AM|PM)$")) then
-          xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001] [h1]:[m01]:[s01] [Pn]", lower-case($str), $lang)
-        (: Fri, 27 Apr 2001 3:23:39 PM+02:00 :) (: Note: TZ abbrevs are replaced above :)
-        else if (matches($str, "^\w{2,}, [0-9]{1,2} \w{3,} [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2} (AM|PM)[+\-]\d{2}:\d{2}$")) then
-          xdmp:parse-dateTime("[Fn], [D1] [Mn] [Y0001] [h1]:[m01]:[s01] [Pn][Z]", lower-case($str), $lang)
-        (: Friday, January 28, 2000 9:52:22 AM :)
-        else if (matches($str, "^\w{2,}, \w{3,} [0-9]{1,2}, [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2} (AM|PM)$")) then
-          xdmp:parse-dateTime("[Fn], [Mn] [D1], [Y0001] [h1]:[m01]:[s01] [Pn]", lower-case($str), $lang)
+        (: 6 Feb 2001 00:22:15-00:00 :)
+        else if (matches($str, "^\d{1,2} \w{3,} \d{4} \d{1,2}:\d{2}:\d{2}[+\-]\d{2}:\d{2}$")) then
+          xdmp:parse-dateTime("[D1] [Mn] [Y0001] [H1]:[m01]:[s01][Z]", lower-case($str), $lang)
+        (: Fri 6 Oct 2000 09:20:25-07:00 :)
+        else if (matches($str, "^\w{2,} \d{1,2} \w{3,} \d{4} \d{1,2}:\d{2}:\d{2}[+\-]\d{2}:\d{2}$")) then
+          xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001] [H1]:[m01]:[s01][Z]", lower-case($str), $lang)
+        (: Fri 27 Apr 2001 3:23:39PM :)
+        else if (matches($str, "^\w{2,} [0-9]{1,2} \w{3,} [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2}(AM|PM)$", "i")) then
+          xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001] [h1]:[m01]:[s01][Pn]", lower-case($str), $lang)
+        (: Fri 27 Apr 2001 3:23:39PM+02:00 :)
+        else if (matches($str, "^\w{2,} [0-9]{1,2} \w{3,} [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2}(AM|PM)[+\-]\d{2}:\d{2}$", "i")) then
+          xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001] [h1]:[m01]:[s01][Pn][Z]", lower-case($str), $lang)
+        (: Friday January 28 2000 9:52:22AM :)
+        else if (matches($str, "^\w{2,} \w{3,} [0-9]{1,2} [0-9]{4,4} [0-9]{1,2}:[0-9]{2,2}:[0-9]{2,2}(AM|PM)$", "i")) then
+          xdmp:parse-dateTime("[Fn] [Mn] [D1] [Y0001] [h1]:[m01]:[s01][Pn]", lower-case($str), $lang)
         else
           ()
       } catch ($e) {
@@ -356,7 +366,13 @@ declare function datetime:parse-time(
   else if ($str castable as xs:dateTime) then
     xs:time(xs:dateTime($str))
   else
-    ()
+
+    let $str := datetime:apply-simple-timezone-patterns($str)
+    let $str := datetime:apply-simple-time-patterns($str)
+    let $_ := xdmp:log($str)
+    where $str castable as xs:time
+    return
+      xs:time($str)
 };
 
 declare function datetime:date-attrs($date as xs:date) {
@@ -505,6 +521,19 @@ declare function datetime:to-epoch($dateTime as xs:dateTime) as xs:long {
   ($dateTime - xs:dateTime("1970-01-01T00:00:00-00:00")) div xs:dayTimeDuration("PT0.001S")
 };
 
+declare function datetime:from-excel($date-numeric as xs:double)
+{
+  (: Note:
+   : This function is unreliable for dates before March 1st, 1900, due to the so-called Lotes 1-2-3 bug.
+   : There is a whole story behind the peculiar start date. This links explains where it comes from:
+   :   https://blogs.msdn.microsoft.com/ericlippert/2003/09/16/erics-complete-guide-to-vt_date/
+   : This link shows it with some code:
+   :   https://stackoverflow.com/a/36378821/918496
+   :)
+  xs:dateTime('1899-12-30T00:00:00') + (xs:dayTimeDuration('P1D') * $date-numeric)
+};
+
 declare private variable $timezones := map:new((
   map:entry("ACDT", "+10:30"), map:entry("ACST", "+09:30"), map:entry("ADT", "-03:00"), map:entry("AEDT", "+11:00"), map:entry("AEST", "+10:00"), map:entry("AHDT", "-09:00"), map:entry("AHST", "-10:00"), map:entry("AST", "-04:00"), map:entry("AT", "-02:00"), map:entry("AWDT", "+09:00"), map:entry("AWST", "+08:00"), map:entry("BAT", "+03:00"), map:entry("BDST", "+02:00"), map:entry("BET", "-11:00"), map:entry("BST", "-03:00"), map:entry("BT", "+03:00"), map:entry("BZT2", "-03:00"), map:entry("CADT", "+10:30"), map:entry("CAST", "+09:30"), map:entry("CAT", "-10:00"), map:entry("CCT", "+08:00"), map:entry("CDT", "-05:00"), map:entry("CED", "+02:00"), map:entry("CET", "+01:00"), map:entry("CEST", "+02:00"), map:entry("CST", "-06:00"), map:entry("EAST", "+10:00"), map:entry("EDT", "-04:00"), map:entry("EED", "+03:00"), map:entry("EET", "+02:00"), map:entry("EEST", "+03:00"), map:entry("EST", "-05:00"), map:entry("FST", "+02:00"), map:entry("FWT", "+01:00"), map:entry("GMT", "-00:00"), map:entry("GST", "+10:00"), map:entry("HDT", "-09:00"), map:entry("HST", "-10:00"), map:entry("IDLE", "+12:00"), map:entry("IDLW", "-12:00"), map:entry("IST", "+05:30"), map:entry("IT", "+03:30"), map:entry("JST", "+09:00"), map:entry("JT", "+07:00"), map:entry("MDT", "-06:00"), map:entry("MED", "+02:00"), map:entry("MET", "+01:00"), map:entry("MEST", "+02:00"), map:entry("MEWT", "+01:00"), map:entry("MST", "-07:00"), map:entry("MT", "+08:00"), map:entry("NDT", "-02:30"), map:entry("NFT", "-03:30"), map:entry("NT", "-11:00"), map:entry("NST", "+06:30"), map:entry("NZ", "+11:00"), map:entry("NZST", "+12:00"), map:entry("NZDT", "+13:00"), map:entry("NZT", "+12:00"), map:entry("PDT", "-07:00"), map:entry("PST", "-08:00"), map:entry("ROK", "+09:00"), map:entry("SAD", "+10:00"), map:entry("SAST", "+09:00"), map:entry("SAT", "+09:00"), map:entry("SDT", "+10:00"), map:entry("SST", "+02:00"), map:entry("SWT", "+01:00"), map:entry("USZ3", "+04:00"), map:entry("USZ4", "+05:00"), map:entry("USZ5", "+06:00"), map:entry("USZ6", "+07:00"), map:entry("UT", "-00:00"), map:entry("UTC", "-00:00"), map:entry("UZ10", "+11:00"), map:entry("WAT", "-01:00"), map:entry("WET", "-00:00"), map:entry("WST", "+08:00"), map:entry("YDT", "-08:00"), map:entry("YST", "-09:00"), map:entry("ZP4", "+04:00"), map:entry("ZP5", "+05:00"), map:entry("ZP6", "+06:00")
 ));
+declare private variable $timezones-pattern := "(" || string-join(map:keys($timezones), "|") || ")";
