@@ -1,5 +1,13 @@
 # Change Log
 
+## [1.0.4](https://github.com/grtjn/ml-datetime/tree/1.0.4) (2018-02-23)
+[Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.3...1.0.4)
+
+**Implemented enhancements:**
+
+- Add support for Z00'00' [\#11](https://github.com/grtjn/ml-datetime/issues/11)
+- Document how to install [\#10](https://github.com/grtjn/ml-datetime/issues/10)
+
 ## [1.0.3](https://github.com/grtjn/ml-datetime/tree/1.0.3) (2017-06-30)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.2...1.0.3)
 
