@@ -257,7 +257,8 @@ declare %test:case function test:parse-dateTime-complex()
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00 (GMT)" },
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00 GMT" },
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00 AMZ" },
-    element Sent_Date { "Wed, 01 Mar 2017 00:00:00Z" }
+    element Sent_Date { "Wed, 01 Mar 2017 00:00:00Z" },
+    element CreationDate { "2017/05/03 00:46:04Z00'00'" }
   )
   let $date := datetime:parse-dateTime($str)
   return (

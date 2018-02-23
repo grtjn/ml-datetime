@@ -80,9 +80,11 @@ declare private function datetime:apply-simple-timezone-patterns(
 {
   (: normalize timezone separator :)
   (:
+    Z00'00'
     +02'00'
     -05'00'
   :)
+  let $str := replace($str, "Z00'00'$", "Z")
   let $str := replace($str, "([+\-]\d{2})'(\d{2})'$", "$1:$2")
 
   (: add missing timezone separator :)
@@ -259,6 +261,7 @@ Last_Saved_Date=Thu, 31 Jan 2002 5:21:36 PM (UTC)
 Sent_Date=Fri, 27 Apr 2001 10:23:39 AM
 Sent_Date=Mon, 24 Apr 2000 6:25:41 PM
 Sent_Date=Wed, 22 Mar 2000 5:46:52 PM
+CreationDate=2017/05/03 00:46:04Z00'00'
 
 International:
 Date=vrijdag, 6 oktober 2000 09:20:25 -0700, nl
