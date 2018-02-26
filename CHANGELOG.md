@@ -5,12 +5,9 @@
 
 **Implemented enhancements:**
 
+- Add support for Jan 10, 2018, and 10 Jan 2018 [\#12](https://github.com/grtjn/ml-datetime/issues/12)
 - Add support for Z00'00' [\#11](https://github.com/grtjn/ml-datetime/issues/11)
 - Document how to install [\#10](https://github.com/grtjn/ml-datetime/issues/10)
-
-**Closed issues:**
-
-- Add support for Jan 10, 2018, and 10 Jan 2018 [\#12](https://github.com/grtjn/ml-datetime/issues/12)
 
 ## [1.0.3](https://github.com/grtjn/ml-datetime/tree/1.0.3) (2017-06-30)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.2...1.0.3)
