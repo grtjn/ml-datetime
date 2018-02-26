@@ -134,6 +134,7 @@ declare private function datetime:apply-simple-time-patterns(
 
 (:
 Converted_Date=23-Sep-1999
+AuditDate=January 10, 2018
 :)
 declare private function datetime:parse-date(
   $org-str as xs:string,
@@ -169,20 +170,25 @@ declare private function datetime:parse-date(
         if (matches($str, "^\d{1,2}-\w{3,}-\d{4}$")) then
           xs:date(xdmp:parse-dateTime("[D1]-[Mn]-[Y0001]", lower-case($str), $lang))
         (: Fri Jul 05 2002 :)
+        (: Friday January 28 2000 :)
         else if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{4}$")) then
           xs:date(xdmp:parse-dateTime("[Fn] [Mn] [D1] [Y0001]", lower-case($str), $lang))
+        (: Jul 05 2002 :)
+        (: January 28 2000 :)
+        else if (matches($str, "^\w{3,} \d{1,2} \d{4}$")) then
+          xs:date(xdmp:parse-dateTime("[Mn] [D1] [Y0001]", lower-case($str), $lang))
         (: 6 Feb 2001-00:00 :)
         else if (matches($str, "^\d{1,2} \w{3,} \d{4}[+\-]\d{2}:\d{2}$")) then
           xs:date(xdmp:parse-dateTime("[D1] [Mn] [Y0001][Z]", lower-case($str), $lang))
         (: Fri 27 Apr 2001 :)
         else if (matches($str, "^\w{2,} \d{1,2} \w{3,} \d{4}$")) then
           xs:date(xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001]", lower-case($str), $lang))
+        (: 27 Apr 2001 :)
+        else if (matches($str, "^\d{1,2} \w{3,} \d{4}$")) then
+          xs:date(xdmp:parse-dateTime("[D1] [Mn] [Y0001]", lower-case($str), $lang))
         (: Fri 6 Oct 2000-07:00 :)
         else if (matches($str, "^\w{2,} \d{1,2} \w{3,} \d{4}[+\-]\d{2}:\d{2}$")) then
           xs:date(xdmp:parse-dateTime("[Fn] [D1] [Mn] [Y0001][Z]", lower-case($str), $lang))
-        (: Friday January 28 2000 :)
-        else if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{4}$")) then
-          xs:date(xdmp:parse-dateTime("[Fn] [Mn] [D1] [Y0001]", lower-case($str), $lang))
         else
           ()
       } catch ($e) {
