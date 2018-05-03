@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.0.5](https://github.com/grtjn/ml-datetime/tree/1.0.5) (2018-05-03)
+[Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.4...1.0.5)
+
+**Implemented enhancements:**
+
+- Not able to parse  format "Mon, 09 Apr 2018 07:45 +0200" [\#13](https://github.com/grtjn/ml-datetime/issues/13)
+
 ## [1.0.4](https://github.com/grtjn/ml-datetime/tree/1.0.4) (2018-02-26)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.3...1.0.4)
 
