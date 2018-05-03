@@ -260,7 +260,8 @@ declare %test:case function test:parse-dateTime-complex()
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00 GMT" },
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00 AMZ" },
     element Sent_Date { "Wed, 01 Mar 2017 00:00:00Z" },
-    element CreationDate { "2017/05/03 00:46:04Z00'00'" }
+    element CreationDate { "2017/05/03 00:46:04Z00'00'" },
+    element CreationDate { "Mon, 09 Apr 2018 07:45 +0200" }
   )
   let $date := datetime:parse-dateTime($str)
   return (
@@ -387,12 +388,26 @@ declare %test:case function test:from-excel()
   for $date in (
     <date equals="0">{ xs:dateTime("1899-12-30T00:00:00") }</date>,
     <date equals="0.75">{ xs:dateTime("1899-12-30T18:00:00") }</date>,
+    (: Hits strange ML bug in OSX!
     <date equals="2">{ xs:dateTime("1900-01-01T00:00:00") }</date>,
+    :)
+    <date equals="2.1">{ xs:dateTime("1900-01-01T02:24:00") }</date>,
     <date equals="60">{ xs:dateTime("1900-02-28T00:00:00") }</date>,
     <date equals="61">{ xs:dateTime("1900-03-01T00:00:00") }</date>,
     <date equals="42916.41">{ xs:dateTime("2017-06-30T09:50:24") }</date>
   )
-  return assert:equal( datetime:from-excel(xs:double($date/@equals)), xs:dateTime($date), $date )
+  let $expected := xs:dateTime($date)
+  let $input := xs:double($date/@equals)
+  let $result := datetime:from-excel($input)
+  (:
+  let $_ := xdmp:log((
+    "test:from-excel:",
+    $date,
+    xdmp:describe($input),
+    xdmp:describe($result),
+    xdmp:describe($expected)
+  )):)
+  return assert:equal( $result, $expected, $date )
 };
 
 (: test helper functions :)

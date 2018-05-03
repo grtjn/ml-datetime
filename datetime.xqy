@@ -127,8 +127,8 @@ declare private function datetime:apply-simple-time-patterns(
   as xs:string
 {
   let $str := replace($str, "(^|:|T)(\d)(:|$)", "$10$2$3")
-  let $str := replace($str, "(^|:|T)(\d)(:|$)", "$10$2$3") (: apply twive because of overlapping patterns :)
-  let $str := replace($str, "(^|T)(\d{2}:\d{2})($|[+-])", "$1$2:00$3")
+  let $str := replace($str, "(^|:|T)(\d)(:|$)", "$10$2$3") (: apply twice because of overlapping patterns :)
+  let $str := replace($str, "(^|T|\s)(\d{2}:\d{2})($|[+-]|\s)", "$1$2:00$3")
   return $str
 };
 
@@ -378,7 +378,6 @@ declare function datetime:parse-time(
 
     let $str := datetime:apply-simple-timezone-patterns($str)
     let $str := datetime:apply-simple-time-patterns($str)
-    let $_ := xdmp:log($str)
     where $str castable as xs:time
     return
       xs:time($str)
@@ -530,7 +529,7 @@ declare function datetime:to-epoch($dateTime as xs:dateTime) as xs:long {
   ($dateTime - xs:dateTime("1970-01-01T00:00:00-00:00")) div xs:dayTimeDuration("PT0.001S")
 };
 
-declare function datetime:from-excel($date-numeric as xs:double)
+declare function datetime:from-excel($date-numeric as xs:double) as xs:dateTime
 {
   (: Note:
    : This function is unreliable for dates before March 1st, 1900, due to the so-called Lotes 1-2-3 bug.
@@ -539,6 +538,13 @@ declare function datetime:from-excel($date-numeric as xs:double)
    : This link shows it with some code:
    :   https://stackoverflow.com/a/36378821/918496
    :)
+  (:
+  xdmp:log((
+    "datetime:from-excel:",
+    xdmp:describe($date-numeric),
+    xs:dayTimeDuration('P1D') * $date-numeric,
+    xs:dateTime('1899-12-30T00:00:00') + (xs:dayTimeDuration('P1D') * $date-numeric)
+  )),:)
   xs:dateTime('1899-12-30T00:00:00') + (xs:dayTimeDuration('P1D') * $date-numeric)
 };
 
