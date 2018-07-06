@@ -59,8 +59,8 @@ declare private function datetime:apply-simple-date-patterns(
     18-03-15 (DMY most common!)
   :)
   (: Note: this pattern was used most *before* 2000, taking 50/50 split around that year :)
-  let $str := replace($str, "^(\d{2})-(\d{2})-([5-9]\d)", "19$3-$2-$1")
-  let $str := replace($str, "^(\d{2})-(\d{2})-([0-4]\d)", "20$3-$2-$1")
+  let $str := replace($str, "^(\d{1,2})-(\d{1,2})-([5-9]\d)", "19$3-$2-$1")
+  let $str := replace($str, "^(\d{1,2})-(\d{1,2})-([0-4]\d)", "20$3-$2-$1")
 
   (: clean up missing zeros :)
   (:

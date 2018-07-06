@@ -76,7 +76,10 @@ declare %test:case function test:parse-date-simple()
     element CreationDate { "05/18/2001" },
     element CreationDate { "18.05.2001" },
     element CreationDate { "5-8-2001" },
-    element CreationDate { "8/5/2001" }
+    element CreationDate { "8/5/2001" },
+    element CreationDate { "1/7/98" },
+    element CreationDate { "18.05.01" },
+    element CreationDate { "5-8-01" }
   )
   let $date := datetime:parse-date($str)
   return (
