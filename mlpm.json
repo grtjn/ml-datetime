@@ -1,6 +1,6 @@
 {
   "name": "ml-datetime",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "MarkLogic library with various date/time related functions",
   "repository": "https://github.com/grtjn/ml-datetime.git"
 }

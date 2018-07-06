@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.0.6](https://github.com/grtjn/ml-datetime/tree/1.0.6) (2018-07-06)
+[Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.5...1.0.6)
+
+**Implemented enhancements:**
+
+- Should also handle single-digit date formats [\#14](https://github.com/grtjn/ml-datetime/issues/14)
+
 ## [1.0.5](https://github.com/grtjn/ml-datetime/tree/1.0.5) (2018-05-03)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.4...1.0.5)
 
