@@ -166,9 +166,9 @@ declare private function datetime:parse-date(
 
       let $str := replace(replace(translate($str, ",", ""), "^D:", "", "i"), "\s*Z$", "-00:00", "i")
       let $date := try {
-        (: 23-Sep-1999 :)
-        if (matches($str, "^\d{1,2}-\w{3,}-\d{4}$")) then
-          xs:date(xdmp:parse-dateTime("[D1]-[Mn]-[Y0001]", lower-case($str), $lang))
+        (: 23-Sep-1999, 31-May-18 :)
+        if (matches($str, "^\d{1,2}-\w{3,}-\d{2,4}$")) then
+          xs:date(xdmp:parse-dateTime("[D1]-[Mn]-[Y1]", lower-case($str), $lang))
         (: Fri Jul 05 2002 :)
         (: Friday January 28 2000 :)
         else if (matches($str, "^\w{2,} \w{3,} \d{1,2} \d{4}$")) then

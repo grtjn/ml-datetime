@@ -115,7 +115,8 @@ declare %test:case function test:parse-date-complex()
     element Sent_Date { "Mon, 24 Apr 2000" },
     element Sent_Date { "Wed, 22 Mar 2000" },
     element Sent_Date { "22 Mar 2000" },
-    element AuditDate { "January 10, 2018" }
+    element AuditDate { "January 10, 2018" },
+    element AuditDate { "31-May-18" }
   )
   let $date := datetime:parse-date($str)
   return (
