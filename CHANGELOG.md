@@ -1,5 +1,12 @@
 # Change Log
 
+## [1.0.7](https://github.com/grtjn/ml-datetime/tree/1.0.7) (2018-07-10)
+[Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.6...1.0.7)
+
+**Implemented enhancements:**
+
+- Does not handle dates in format DD-MON-YY [\#15](https://github.com/grtjn/ml-datetime/issues/15)
+
 ## [1.0.6](https://github.com/grtjn/ml-datetime/tree/1.0.6) (2018-07-06)
 [Full Changelog](https://github.com/grtjn/ml-datetime/compare/1.0.5...1.0.6)
 
