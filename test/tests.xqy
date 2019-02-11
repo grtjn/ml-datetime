@@ -16,7 +16,8 @@ declare %test:case function test:parse-date-fail()
   for $str in (
     element CreationDate { "1910/10/30 11:10:752" },
     element Creation_Date { "xxx" },
-    element Creation_Date { "00:00" }
+    element Creation_Date { "00:00" },
+    element date { "2001-41-62" }
   )
   let $date := datetime:parse-date($str)
   return (
